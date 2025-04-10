@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIMS Certificate Tracker</title>
+  <style>
+    body {
+      background-color: white;
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+    img {
+      max-width: 150px;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 1em;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    #content {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="passwordPrompt">
+    <h2>Enter Password</h2>
+    <input type="password" id="passwordInput" placeholder="Password">
+    <button onclick="checkPassword()">Enter</button>
+  </div>
+
+  <div id="content">
+    <img src="Aims Logo.jpeg" alt="AIMS Logo">
+    <h1>AIMS Training Center</h1>
+
+    <div>
+      <label for="certNumber">Next Certificate Number:</label>
+      <input type="text" id="certNumber">
+    </div>
+    <div>
+      <label for="saverName">Saver's Name:</label>
+      <input type="text" id="saverName">
+    </div>
+    <div>
+      <label for="status">Status:</label>
+      <select id="status">
+        <option>Preparing certificates</option>
+        <option>Finished preparing certificates</option>
+      </select>
+    </div>
+    <div>
+      <button onclick="saveData()">Save</button>
+    </div>
+    <div>
+      <label>Last Saved:</label>
+      <div id="timestamp"></div>
+    </div>
+
+    <footer>
+      <p>Created by Dr. Hayan Saffan</p>
+      <p>AIMES Training Center Rights 2025-2026</p>
+      <p>This site shows the next certificate number you’ll start with.</p>
+    </footer>
+  </div>
+
+  <script>
+    const PASSWORD = "Aims2025";
+
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === PASSWORD) {
+        document.getElementById("passwordPrompt").style.display = "none";
+        document.getElementById("content").style.display = "block";
+        loadData();
+      } else {
+        alert("Incorrect password.");
+      }
+    }
+
+    function saveData() {
+      const certNumber = document.getElementById("certNumber").value;
+      const saverName = document.getElementById("saverName").value;
+      const status = document.getElementById("status").value;
+      const timestamp = new Date().toLocaleString();
+
+      localStorage.setItem("certNumber", certNumber);
+      localStorage.setItem("saverName", saverName);
+      localStorage.setItem("status", status);
+      localStorage.setItem("timestamp", timestamp);
+
+      document.getElementById("timestamp").innerText = timestamp;
+    }
+
+    function loadData() {
+      document.getElementById("certNumber").value = localStorage.getItem("certNumber") || "";
+      document.getElementById("saverName").value = localStorage.getItem("saverName") || "";
+      document.getElementById("status").value = localStorage.getItem("status") || "Preparing certificates";
+      document.getElementById("timestamp").innerText = localStorage.getItem("timestamp") || "";
+    }
+  </script>
+</body>
+</html>
