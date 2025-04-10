@@ -1,111 +1,108 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AIMS Certificate Tracker</title>
   <style>
     body {
-      background-color: white;
+      background: #fff;
       font-family: Arial, sans-serif;
-      padding: 30px;
-      text-align: center;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
     }
     img {
-      max-width: 150px;
-      margin-bottom: 20px;
+      width: 150px;
     }
     input, select, button {
-      margin: 10px;
-      padding: 10px;
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 8px;
       font-size: 1em;
     }
     footer {
-      margin-top: 40px;
+      margin-top: 30px;
       font-size: 0.9em;
-      color: #666;
-    }
-    #content {
-      display: none;
+      color: #555;
     }
   </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <div id="passwordPrompt">
-    <h2>Enter Password</h2>
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Enter</button>
-  </div>
+  <img src="Aims Logo.jpeg" alt="AIMS Logo" />
+  <h2>AIMS Training Center</h2>
 
-  <div id="content">
-    <img src="Aims Logo.jpeg" alt="AIMS Logo">
-    <h1>AIMS Training Center</h1>
+  <label for="certNumber">Next Certificate Number:</label>
+  <input type="text" id="certNumber" />
 
-    <div>
-      <label for="certNumber">Next Certificate Number:</label>
-      <input type="text" id="certNumber">
-    </div>
-    <div>
-      <label for="saverName">Saver's Name:</label>
-      <input type="text" id="saverName">
-    </div>
-    <div>
-      <label for="status">Status:</label>
-      <select id="status">
-        <option>Preparing certificates</option>
-        <option>Finished preparing certificates</option>
-      </select>
-    </div>
-    <div>
-      <button onclick="saveData()">Save</button>
-    </div>
-    <div>
-      <label>Last Saved:</label>
-      <div id="timestamp"></div>
-    </div>
+  <label for="saverName">Name of Saver:</label>
+  <input type="text" id="saverName" />
 
-    <footer>
-      <p>Created by Dr. Hayan Saffan</p>
-      <p>AIMES Training Center Rights 2025-2026</p>
-      <p>This site shows the next certificate number you’ll start with.</p>
-    </footer>
-  </div>
+  <label for="status">Certificate Status:</label>
+  <select id="status">
+    <option value="Preparing certificates">Preparing certificates</option>
+    <option value="Finished preparing certificates">Finished preparing certificates</option>
+  </select>
+
+  <button onclick="saveData()">Save Time and Date</button>
+
+  <p><strong>Last Updated:</strong> <span id="lastUpdated">—</span></p>
+
+  <footer>
+    <p>Created by Dr. Hayan Saffan</p>
+    <p>AIMES Training Center Rights 2025-2026</p>
+    <p>This site shows the next certificate number you’ll start with.</p>
+  </footer>
 
   <script>
-    const PASSWORD = "Aims2025";
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCijZTudReNR-PVExVQXhc8cM2eaRfPjP8",
+      authDomain: "aims-cert-tracker.firebaseapp.com",
+      databaseURL: "https://aims-cert-tracker-default-rtdb.firebaseio.com",
+      projectId: "aims-cert-tracker",
+      storageBucket: "aims-cert-tracker.firebasestorage.app",
+      messagingSenderId: "949148760357",
+      appId: "1:949148760357:web:eb1c08c8cf804d9c6e02cc",
+      measurementId: "G-CB7GVSDW8L"
+    };
 
-    function checkPassword() {
-      const input = document.getElementById("passwordInput").value;
-      if (input === PASSWORD) {
-        document.getElementById("passwordPrompt").style.display = "none";
-        document.getElementById("content").style.display = "block";
-        loadData();
-      } else {
-        alert("Incorrect password.");
-      }
-    }
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const certNumberEl = document.getElementById('certNumber');
+    const saverNameEl = document.getElementById('saverName');
+    const statusEl = document.getElementById('status');
+    const lastUpdatedEl = document.getElementById('lastUpdated');
 
     function saveData() {
-      const certNumber = document.getElementById("certNumber").value;
-      const saverName = document.getElementById("saverName").value;
-      const status = document.getElementById("status").value;
-      const timestamp = new Date().toLocaleString();
-
-      localStorage.setItem("certNumber", certNumber);
-      localStorage.setItem("saverName", saverName);
-      localStorage.setItem("status", status);
-      localStorage.setItem("timestamp", timestamp);
-
-      document.getElementById("timestamp").innerText = timestamp;
+      const data = {
+        certNumber: certNumberEl.value,
+        saverName: saverNameEl.value,
+        status: statusEl.value,
+        timestamp: new Date().toLocaleString()
+      };
+      db.ref('tracker').set(data);
     }
 
     function loadData() {
-      document.getElementById("certNumber").value = localStorage.getItem("certNumber") || "";
-      document.getElementById("saverName").value = localStorage.getItem("saverName") || "";
-      document.getElementById("status").value = localStorage.getItem("status") || "Preparing certificates";
-      document.getElementById("timestamp").innerText = localStorage.getItem("timestamp") || "";
+      db.ref('tracker').on('value', snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          certNumberEl.value = data.certNumber || '';
+          saverNameEl.value = data.saverName || '';
+          statusEl.value = data.status || '';
+          lastUpdatedEl.innerText = data.timestamp || '—';
+        }
+      });
     }
+
+    loadData();
   </script>
 </body>
 </html>
